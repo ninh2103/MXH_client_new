@@ -1,41 +1,18 @@
 'use client'
 import React, { useState } from 'react'
-import { MoreHorizontal } from 'lucide-react'
-
+import { MessageCircle, MoreHorizontal, Search } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { usePathname } from 'next/navigation'
 import menuItems from '@/app/account/menuItems'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
+import { Label } from '@/components/ui/label'
+import { Input } from '@/components/ui/input'
+import { Avatar } from '@radix-ui/react-avatar'
+import { AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import More from '@/components/more/More'
-import { Label } from '@radix-ui/react-label'
-import { Avatar } from '@/components/ui/avatar'
-import { AvatarFallback, AvatarImage } from '@radix-ui/react-avatar'
-import PostList from '@/components/post-list'
 
 const users = [
-  {
-    id: 7,
-    avatar: (
-      <Avatar className='w-10 h-10 rounded-full overflow-hidden'>
-        <AvatarImage className='w-full h-full object-cover' src='https://github.com/shadcn.png' alt='@shadcn' />
-        <AvatarFallback>CN</AvatarFallback>
-      </Avatar>
-    ),
-    name: 'ninhdz',
-    userName: 'NguyenDucNinh'
-  },
-  {
-    id: 6,
-    avatar: (
-      <Avatar className='w-10 h-10 rounded-full overflow-hidden'>
-        <AvatarImage className='w-full h-full object-cover' src='https://github.com/shadcn.png' alt='@shadcn' />
-        <AvatarFallback>CN</AvatarFallback>
-      </Avatar>
-    ),
-    name: 'ninhdz',
-    userName: 'NguyenDucNinh'
-  },
   {
     id: 1,
     avatar: (
@@ -45,57 +22,78 @@ const users = [
       </Avatar>
     ),
     name: 'ninhdz',
-    userName: 'NguyenDucNinh'
+    activity: 'Hoạt động 2 giờ trước'
   },
   {
-    id: 2,
+    id: 1,
     avatar: (
       <Avatar className='w-10 h-10 rounded-full overflow-hidden'>
         <AvatarImage className='w-full h-full object-cover' src='https://github.com/shadcn.png' alt='@shadcn' />
         <AvatarFallback>CN</AvatarFallback>
       </Avatar>
     ),
-    name: 'ninhdz',
-    userName: 'NguyenDucNinh'
+    name: 'nguyenducninhh',
+    activity: 'Hoạt động 2 giờ trước'
   },
   {
-    id: 3,
+    id: 1,
     avatar: (
       <Avatar className='w-10 h-10 rounded-full overflow-hidden'>
         <AvatarImage className='w-full h-full object-cover' src='https://github.com/shadcn.png' alt='@shadcn' />
         <AvatarFallback>CN</AvatarFallback>
       </Avatar>
     ),
-    name: 'ninhdz',
-    userName: 'NguyenDucNinh'
+    name: 'duck_ninh',
+    activity: 'Hoạt động 2 giờ trước'
   },
   {
-    id: 4,
+    id: 1,
     avatar: (
       <Avatar className='w-10 h-10 rounded-full overflow-hidden'>
         <AvatarImage className='w-full h-full object-cover' src='https://github.com/shadcn.png' alt='@shadcn' />
         <AvatarFallback>CN</AvatarFallback>
       </Avatar>
     ),
-    name: 'ninhdz',
-    userName: 'NguyenDucNinh'
+    name: 'duck_ninh',
+    activity: 'Hoạt động 2 giờ trước'
   },
   {
-    id: 5,
+    id: 1,
     avatar: (
       <Avatar className='w-10 h-10 rounded-full overflow-hidden'>
         <AvatarImage className='w-full h-full object-cover' src='https://github.com/shadcn.png' alt='@shadcn' />
         <AvatarFallback>CN</AvatarFallback>
       </Avatar>
     ),
-    name: 'ninhdz',
-    userName: 'NguyenDucNinh'
+    name: 'duck_ninh',
+    activity: 'Hoạt động 2 giờ trước'
+  },
+  {
+    id: 1,
+    avatar: (
+      <Avatar className='w-10 h-10 rounded-full overflow-hidden'>
+        <AvatarImage className='w-full h-full object-cover' src='https://github.com/shadcn.png' alt='@shadcn' />
+        <AvatarFallback>CN</AvatarFallback>
+      </Avatar>
+    ),
+    name: 'duck_ninh',
+    activity: 'Hoạt động 2 giờ trước'
+  },
+  {
+    id: 1,
+    avatar: (
+      <Avatar className='w-10 h-10 rounded-full overflow-hidden'>
+        <AvatarImage className='w-full h-full object-cover' src='https://github.com/shadcn.png' alt='@shadcn' />
+        <AvatarFallback>CN</AvatarFallback>
+      </Avatar>
+    ),
+    name: 'duck_ninh',
+    activity: 'Hoạt động 2 giờ trước'
   }
 ]
-function HomePage() {
+export default function Dashboard() {
   const pathname = usePathname()
   const [activeSection, setActiveSection] = useState<string>('home')
-
   const activeItem = menuItems.find((item) => item.title === activeSection)
 
   const handleNavClick = (title: string) => {
@@ -147,56 +145,53 @@ function HomePage() {
         <header className='sticky top-0 z-10 flex h-[53px] items-center gap-1 border-b bg-background px-4'>
           <h1 className='text-xl font-semibold'>Playground</h1>
         </header>
-        <main className='grid flex-1 gap-4 overflow-auto p-4 md:grid-cols-2 lg:grid-cols-3'>
-          <div className='relative hidden flex-col items-start gap-8 md:flex' x-chunk='dashboard-03-chunk-0'>
+        <main className='grid flex-1 gap-4 overflow-auto p-4 md:grid-cols-2 lg:grid-cols-3 '>
+          <div className='relative hidden flex-col items-start gap-4 md:flex ' x-chunk='dashboard-03-chunk-0 '>
             {activeItem && activeItem.component && <activeItem.component />}
+            <div>
+              <div className='flex items-center space-x-4'>
+                <Label htmlFor='terms' className='text-xl mr-20'>
+                  nguyenducninhh
+                </Label>
 
-            <div className='flex items-center space-x-4 cursor-pointer'>
-              <Avatar>
-                <AvatarImage src='https://github.com/shadcn.png' alt='@shadcn' />
-                <AvatarFallback>CN</AvatarFallback>
-              </Avatar>
-              <div>
-                <div className='text-xl font-semibold flex items-center'>nguyenducninh</div>
-                <div className='text-lg font-semibold flex items-center'>Nguyễn Đức Ninh</div>
+                <div className='relative flex-grow flex items-center '>
+                  <Search className='absolute left-2 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground' />
+                  <Input
+                    type='search'
+                    placeholder='Tìm kiếm trò chuyện'
+                    className='w-full rounded-lg bg-background pl-10 pr-3 py-2'
+                  />
+                </div>
               </div>
             </div>
-            <div className='flex justify-between w-full'>
-              <Label htmlFor='terms' className='text-sm mb-8'>
-                Gợi ý cho bạn
-              </Label>
-              <Label htmlFor='terms' className='text-sm mb-8 cursor-pointer'>
-                Xem tất cả
-              </Label>
-            </div>
+            <hr className='my-4 border-t border-gray-300 w-full' />
+            <Label htmlFor='terms' className='text-xl mb-10'>
+              Tin nhắn
+            </Label>
 
-            <div className='flex flex-col gap-4 justify-between w-full cursor-pointer'>
-              {users.map((user) => (
-                <div key={user.id} className='flex items-center justify-between w-full space-x-4'>
-                  <div className='flex items-center space-x-4'>
-                    <div className='w-10 h-10 rounded-full overflow-hidden'>{user.avatar}</div>
-                    <div className='flex flex-col'>
-                      <div className='text-base font-semibold text-black-900'>{user.name}</div>
-                      <div className='text-sm text-white-500'>{user.userName}</div>
-                    </div>
-                  </div>
-
-                  <div className=''>
-                    <div className='text-sm font-semibold '>theo dõi</div>
-                  </div>
+            {users.map((user) => (
+              <div key={user.id} className='flex items-center space-x-4 mb-4'>
+                {user.avatar}
+                <div>
+                  <div className='text-lg font-semibold flex items-center'>{user.name}</div>
+                  <div className='text-sm text-gray-500'>{user.activity}</div>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
 
           <div className='relative flex h-full min-h-[50vh] flex-col rounded-xl bg-muted/50 p-4 lg:col-span-2'>
-            <PostList />
             <div className='flex-1' />
+            <div className='flex flex-col items-center justify-center h-screen '>
+              <div className='flex items-center justify-center w-10 h-10 mb-4 bg-gray-200 rounded-full'>
+                <MessageCircle className='w-8 h-8 text-gray-600' fill='currentColor'></MessageCircle>
+              </div>
+              <p className='mb-2 text-xl font-semibold text-white-700'>Tin nhắn của bạn</p>
+              <p className='text-white-500'>Gửi ảnh và tin nhắn riêng tư cho bạn bè hoặc nhóm</p>
+            </div>
           </div>
         </main>
       </div>
     </div>
   )
 }
-
-export default HomePage
