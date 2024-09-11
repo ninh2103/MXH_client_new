@@ -123,9 +123,12 @@ export default function Dashboard() {
               </div>
             </div>
             <div className='flex mt-4'>
-              <Button className='px-4 py-2 mr-2 text-sm font-semibold text-gray-700 bg-gray-100 border border-gray-300 rounded-lg'>
+              <Link
+                href={`/account/update`}
+                className='px-4 py-2 mr-2 text-sm font-semibold text-gray-700 bg-gray-100 border border-gray-300 rounded-lg'
+              >
                 Chỉnh sửa trang cá nhân
-              </Button>
+              </Link>
               <Button className='px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 border border-gray-300 rounded-lg'>
                 Đăng xuất
               </Button>
