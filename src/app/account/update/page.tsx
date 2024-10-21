@@ -3,21 +3,16 @@ import React, { useState } from 'react'
 import { MoreHorizontal, Newspaper } from 'lucide-react'
 
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { usePathname } from 'next/navigation'
 import menuItems from '@/app/account/menuItems'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel'
-import { Card, CardContent } from '@/components/ui/card'
 import More from '@/components/more/More'
-import EditProfile from '@/components/update-profile'
+import UpdateProfileForm from '@/components/update-profile'
+import useCheck from '@/queries/useCheck'
 
 export default function Dashboard() {
-  const pathname = usePathname()
+  useCheck()
   const [activeSection, setActiveSection] = useState<string>('home')
-  const activeItem = menuItems.find((item) => item.title === activeSection)
 
   const handleNavClick = (title: string) => {
     setActiveSection(title)
@@ -68,7 +63,7 @@ export default function Dashboard() {
         <header className='sticky top-0 z-10 flex h-[53px] items-center gap-1 border-b bg-background px-4'>
           <h1 className='text-xl font-semibold'>Playground</h1>
         </header>
-        <EditProfile />
+        <UpdateProfileForm />
       </div>
     </div>
   )

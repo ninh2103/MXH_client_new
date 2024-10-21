@@ -1,3 +1,4 @@
+'use client'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -13,9 +14,22 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
+import { getRefreshTokenFromLocalStorage } from '@/lib/utils'
+import { useLogoutMutation } from '@/queries/useAuth'
 import { MoreHorizontal } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 export default function DropdownMenuDemo() {
+  const logoutMutation = useLogoutMutation()
+  const route = useRouter()
+
+  const handleLogout = () => {
+    const refresh_token = getRefreshTokenFromLocalStorage() as string
+    logoutMutation.mutate({ refresh_token })
+    localStorage.removeItem('access_token'), localStorage.removeItem('refresh_token')
+    route.push('/login')
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -42,7 +56,7 @@ export default function DropdownMenuDemo() {
         <DropdownMenuItem>Hỗ trợ</DropdownMenuItem>
         <DropdownMenuItem>Đổi chế độ</DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={handleLogout}>
           Log out
           <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
         </DropdownMenuItem>

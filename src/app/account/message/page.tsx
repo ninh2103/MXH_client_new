@@ -1,8 +1,7 @@
 'use client'
-import React, { useState } from 'react'
-import { MessageCircle, MoreHorizontal, Search } from 'lucide-react'
+import React, { useEffect, useState } from 'react'
+import { MessageCircle, Search } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { usePathname, useRouter } from 'next/navigation'
 import menuItems from '@/app/account/menuItems'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
@@ -11,87 +10,48 @@ import { Input } from '@/components/ui/input'
 import { Avatar } from '@radix-ui/react-avatar'
 import { AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import More from '@/components/more/More'
+import { useGetSearchUsersQuery, useGetUserMessageListQuery } from '@/queries/useAccount'
+import { usePathname, useRouter } from 'next/navigation'
+import { useMessageStore } from '@/lib/zustand'
+import useCheck from '@/queries/useCheck'
+import { useDebounce } from 'use-debounce'
 
-type Message = {
-  text: string
-  isSender: boolean
-  avatar: string | null
-}
+const limit = 10
+const page = 1
 
-type Messages = Record<number, Message[]>
-
-const messages: Messages = {
-  1: [
-    { text: 'Hi there! How are you?', isSender: false, avatar: 'https://github.com/shadcn.png' },
-    { text: 'I am good, thanks for asking!', isSender: true, avatar: null }
-  ],
-  2: [
-    { text: 'Hello, what’s up?', isSender: false, avatar: 'https://github.com/shadcn.png' },
-    { text: 'Just working on some projects.', isSender: true, avatar: null }
-  ],
-  3: [
-    { text: 'Are you free this weekend?', isSender: false, avatar: 'https://github.com/shadcn.png' },
-    { text: 'Yes, I am. What’s up?', isSender: true, avatar: null }
-  ]
-}
-
-const users = [
-  {
-    id: 1,
-    avatar: (
-      <Avatar className='w-10 h-10 rounded-full overflow-hidden'>
-        <AvatarImage className='w-full h-full object-cover' src='https://github.com/shadcn.png' alt='@shadcn' />
-        <AvatarFallback>CN</AvatarFallback>
-      </Avatar>
-    ),
-    name: 'ninh1',
-    activity: 'Hoạt động 2 giờ trước'
-  },
-  {
-    id: 2,
-    avatar: (
-      <Avatar className='w-10 h-10 rounded-full overflow-hidden'>
-        <AvatarImage className='w-full h-full object-cover' src='https://github.com/shadcn.png' alt='@shadcn' />
-        <AvatarFallback>CN</AvatarFallback>
-      </Avatar>
-    ),
-    name: 'ninh2',
-    activity: 'Hoạt động 2 giờ trước'
-  },
-  {
-    id: 3,
-    avatar: (
-      <Avatar className='w-10 h-10 rounded-full overflow-hidden'>
-        <AvatarImage className='w-full h-full object-cover' src='https://github.com/shadcn.png' alt='@shadcn' />
-        <AvatarFallback>CN</AvatarFallback>
-      </Avatar>
-    ),
-    name: 'ninh3',
-    activity: 'Hoạt động 2 giờ trước'
-  },
-  {
-    id: 4,
-    avatar: (
-      <Avatar className='w-10 h-10 rounded-full overflow-hidden'>
-        <AvatarImage className='w-full h-full object-cover' src='https://github.com/shadcn.png' alt='@shadcn' />
-        <AvatarFallback>CN</AvatarFallback>
-      </Avatar>
-    ),
-    name: 'ninh4',
-    activity: 'Hoạt động 2 giờ trước'
-  }
-]
 export default function Dashboard() {
-  const pathname = usePathname()
-  const [activeSection, setActiveSection] = useState<string>('home')
-  const activeItem = menuItems.find((item) => item.title === activeSection)
+  useCheck()
+  const router = useRouter()
+  const [isOpen, setIsOpen] = useState(true)
+  const [text, setText] = useState('')
+  const [debouncedSearchTerm] = useDebounce(text, 1000)
 
+  // Fetch users based on search term
+  const { data: searchData, refetch, isLoading } = useGetSearchUsersQuery(debouncedSearchTerm, limit)
+
+  useEffect(() => {
+    if (debouncedSearchTerm.trim() !== '') {
+      refetch()
+    }
+  }, [debouncedSearchTerm, refetch])
+
+  // Get users from the query data or set to an empty array if the search term is empty
+  const usersFromApi = debouncedSearchTerm.trim() ? searchData?.results || [] : []
+
+  const { activeSection, setActiveSection, selectedUserId, setSelectedUserId } = useMessageStore()
+  const getUserMessageListQuery = useGetUserMessageListQuery(limit, page)
+  const users = getUserMessageListQuery.data?.result || []
+
+  // Function to handle navigation clicks
   const handleNavClick = (title: string) => {
     setActiveSection(title)
   }
-  const [activeUserId, setActiveUserId] = useState<number | null>(null)
 
-  const handleUserClick = (id: number) => {}
+  // Function to handle user click and update URL with receiver_id
+  const handleUserClick = (user_id: string) => {
+    setSelectedUserId(user_id)
+    router.replace(`/account/message/${user_id}`, undefined) // Update the URL with the receiver_id
+  }
 
   return (
     <div className='grid h-screen w-full pl-[53px]'>
@@ -138,20 +98,21 @@ export default function Dashboard() {
         <header className='sticky top-0 z-10 flex h-[53px] items-center gap-1 border-b bg-background px-4'>
           <h1 className='text-xl font-semibold'>Playground</h1>
         </header>
-        <main className='grid flex-1 gap-4 overflow-auto p-4 md:grid-cols-2 lg:grid-cols-3 '>
-          <div className='relative hidden flex-col items-start gap-4 md:flex ' x-chunk='dashboard-03-chunk-0 '>
-            {activeItem && activeItem.component && <activeItem.component />}
+        <main className='grid flex-1 gap-4 overflow-auto p-4 md:grid-cols-2 lg:grid-cols-3'>
+          <div className='relative hidden flex-col items-start gap-4 md:flex'>
             <div>
               <div className='flex items-center space-x-4'>
                 <Label htmlFor='terms' className='text-xl mr-20'>
                   nguyenducninhh
                 </Label>
 
-                <div className='relative flex-grow flex items-center '>
+                <div className='relative flex-grow flex items-center'>
                   <Search className='absolute left-2 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground' />
                   <Input
                     type='search'
                     placeholder='Tìm kiếm trò chuyện'
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
                     className='w-full rounded-lg bg-background pl-10 pr-3 py-2'
                   />
                 </div>
@@ -162,24 +123,27 @@ export default function Dashboard() {
               Tin nhắn
             </Label>
 
-            {users.map((user) => (
-              <Link
-                href={`/account/message/${user.id}`}
-                key={user.id}
-                className='flex items-center space-x-4 mb-4'
-                onClick={() => handleUserClick(user.id)}
+            {/* Show search results if there is a search term, otherwise show message users */}
+            {(debouncedSearchTerm.trim() ? usersFromApi : users).map((user) => (
+              <div
+                key={user._id}
+                className='flex items-center space-x-4 mb-4 cursor-pointer'
+                onClick={() => handleUserClick(user._id)}
               >
-                {user.avatar}
+                <Avatar className='w-10 h-10 rounded-full overflow-hidden'>
+                  <AvatarImage className='w-full h-full object-cover' src={user.avatar} alt={user.name} />
+                  <AvatarFallback>CN</AvatarFallback>
+                </Avatar>
                 <div>
                   <div className='text-lg font-semibold flex items-center'>{user.name}</div>
-                  <div className='text-sm text-gray-500'>{user.activity}</div>
+                  <div className='text-sm text-gray-500'>{user.username}</div>
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
 
           <div className='relative flex h-full min-h-[50vh] flex-col rounded-xl bg-muted/50 p-4 lg:col-span-2'>
-            <div className='flex flex-col items-center justify-center h-screen '>
+            <div className='flex flex-col items-center justify-center h-screen'>
               <div className='flex items-center justify-center w-10 h-10 mb-4 bg-gray-200 rounded-full'>
                 <MessageCircle className='w-8 h-8 text-gray-600' fill='currentColor'></MessageCircle>
               </div>

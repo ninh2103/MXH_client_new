@@ -1,5 +1,5 @@
 import React from 'react'
-import { Home, Search as SearchIcon, Heart, MessageCircle, PlusCircle, SquareUser, Search } from 'lucide-react'
+import { Home, Search as SearchIcon, Heart, MessageCircle, PlusCircle, SquareUser } from 'lucide-react'
 import search from '@/components/search'
 import notication from '@/components/notication'
 import create from '@/components/create'
@@ -33,7 +33,7 @@ const menuItems: MenuItem[] = [
   {
     title: 'Tin nhắn',
     Icon: MessageCircle,
-    href: '/account/message',
+    href: '/account/message/',
     component: undefined
   },
   {

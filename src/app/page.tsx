@@ -1,100 +1,50 @@
 'use client'
-import React, { useState } from 'react'
-import { MoreHorizontal } from 'lucide-react'
-
+import React, { useEffect, useState } from 'react'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import menuItems from '@/app/account/menuItems'
-import { cn } from '@/lib/utils'
+import { cn, getAccessTokenFromLocalStorage } from '@/lib/utils'
 import Link from 'next/link'
 import More from '@/components/more/More'
 import { Label } from '@radix-ui/react-label'
 import { Avatar } from '@/components/ui/avatar'
 import { AvatarFallback, AvatarImage } from '@radix-ui/react-avatar'
 import PostList from '@/components/post-list'
+import { useAccountQuery, useGetUserListQuery } from '@/queries/useAccount'
+import { useFollowMutation } from '@/queries/useFollow'
 
-const users = [
-  {
-    id: 7,
-    avatar: (
-      <Avatar className='w-10 h-10 rounded-full overflow-hidden'>
-        <AvatarImage className='w-full h-full object-cover' src='https://github.com/shadcn.png' alt='@shadcn' />
-        <AvatarFallback>CN</AvatarFallback>
-      </Avatar>
-    ),
-    name: 'ninhdz',
-    userName: 'NguyenDucNinh'
-  },
-  {
-    id: 6,
-    avatar: (
-      <Avatar className='w-10 h-10 rounded-full overflow-hidden'>
-        <AvatarImage className='w-full h-full object-cover' src='https://github.com/shadcn.png' alt='@shadcn' />
-        <AvatarFallback>CN</AvatarFallback>
-      </Avatar>
-    ),
-    name: 'ninhdz',
-    userName: 'NguyenDucNinh'
-  },
-  {
-    id: 1,
-    avatar: (
-      <Avatar className='w-10 h-10 rounded-full overflow-hidden'>
-        <AvatarImage className='w-full h-full object-cover' src='https://github.com/shadcn.png' alt='@shadcn' />
-        <AvatarFallback>CN</AvatarFallback>
-      </Avatar>
-    ),
-    name: 'ninhdz',
-    userName: 'NguyenDucNinh'
-  },
-  {
-    id: 2,
-    avatar: (
-      <Avatar className='w-10 h-10 rounded-full overflow-hidden'>
-        <AvatarImage className='w-full h-full object-cover' src='https://github.com/shadcn.png' alt='@shadcn' />
-        <AvatarFallback>CN</AvatarFallback>
-      </Avatar>
-    ),
-    name: 'ninhdz',
-    userName: 'NguyenDucNinh'
-  },
-  {
-    id: 3,
-    avatar: (
-      <Avatar className='w-10 h-10 rounded-full overflow-hidden'>
-        <AvatarImage className='w-full h-full object-cover' src='https://github.com/shadcn.png' alt='@shadcn' />
-        <AvatarFallback>CN</AvatarFallback>
-      </Avatar>
-    ),
-    name: 'ninhdz',
-    userName: 'NguyenDucNinh'
-  },
-  {
-    id: 4,
-    avatar: (
-      <Avatar className='w-10 h-10 rounded-full overflow-hidden'>
-        <AvatarImage className='w-full h-full object-cover' src='https://github.com/shadcn.png' alt='@shadcn' />
-        <AvatarFallback>CN</AvatarFallback>
-      </Avatar>
-    ),
-    name: 'ninhdz',
-    userName: 'NguyenDucNinh'
-  },
-  {
-    id: 5,
-    avatar: (
-      <Avatar className='w-10 h-10 rounded-full overflow-hidden'>
-        <AvatarImage className='w-full h-full object-cover' src='https://github.com/shadcn.png' alt='@shadcn' />
-        <AvatarFallback>CN</AvatarFallback>
-      </Avatar>
-    ),
-    name: 'ninhdz',
-    userName: 'NguyenDucNinh'
-  }
-]
+const limit = 5
+const page = 1
+
 function HomePage() {
-  const pathname = usePathname()
   const [activeSection, setActiveSection] = useState<string>('home')
+  const [followedUsers, setFollowedUsers] = useState<string[]>([])
+  const getUserListQuery = useGetUserListQuery(limit, page)
+  const users = getUserListQuery.data?.result || []
+  const FollowMutation = useFollowMutation()
+  const accessToken = getAccessTokenFromLocalStorage() as string
+  const accountQuery = useAccountQuery()
+  const data = accountQuery.data?.result
+  useEffect(() => {
+    if (typeof window !== 'undefined' && data) {
+      localStorage.setItem('profile', JSON.stringify(data))
+    }
+  }, [data])
+
+  const handleFollow = (user_id: string) => {
+    FollowMutation.mutate(
+      {
+        body: { followed_user_id: user_id },
+
+        access_token: accessToken
+      },
+      {
+        onSuccess: () => {
+          setFollowedUsers((prev) => [...prev, user_id])
+        }
+      }
+    )
+  }
 
   const activeItem = menuItems.find((item) => item.title === activeSection)
 
@@ -148,41 +98,54 @@ function HomePage() {
           <h1 className='text-xl font-semibold'>Playground</h1>
         </header>
         <main className='grid flex-1 gap-4 overflow-auto p-4 md:grid-cols-2 lg:grid-cols-3'>
-          <div className='relative hidden flex-col items-start gap-8 md:flex' x-chunk='dashboard-03-chunk-0'>
+          <div className='relative hidden flex-col items-start gap-8 md:flex'>
             {activeItem && activeItem.component && <activeItem.component />}
 
             <div className='flex items-center space-x-4 cursor-pointer'>
-              <Avatar>
-                <AvatarImage src='https://github.com/shadcn.png' alt='@shadcn' />
-                <AvatarFallback>CN</AvatarFallback>
+              <Avatar className='w-10 h-10 rounded-full overflow-hidden'>
+                <AvatarImage className='w-full h-full object-cover' src={data?.avatar} alt={data?.name} />
+                <AvatarFallback>{data?.name}</AvatarFallback>
               </Avatar>
               <div>
-                <div className='text-xl font-semibold flex items-center'>nguyenducninh</div>
-                <div className='text-lg font-semibold flex items-center'>Nguyễn Đức Ninh</div>
+                <div className='text-xl font-semibold flex items-center'>{data?.name}</div>
+                <div className='text-lg font-semibold flex items-center'>{data?.username}</div>
               </div>
             </div>
             <div className='flex justify-between w-full'>
               <Label htmlFor='terms' className='text-sm mb-8'>
                 Gợi ý cho bạn
               </Label>
-              <Label htmlFor='terms' className='text-sm mb-8 cursor-pointer'>
+              <Link href={`/people`} className='text-sm mb-8 cursor-pointer'>
                 Xem tất cả
-              </Label>
+              </Link>
             </div>
 
             <div className='flex flex-col gap-4 justify-between w-full cursor-pointer'>
               {users.map((user) => (
-                <div key={user.id} className='flex items-center justify-between w-full space-x-4'>
-                  <div className='flex items-center space-x-4'>
-                    <div className='w-10 h-10 rounded-full overflow-hidden'>{user.avatar}</div>
-                    <div className='flex flex-col'>
-                      <div className='text-base font-semibold text-black-900'>{user.name}</div>
-                      <div className='text-sm text-white-500'>{user.userName}</div>
+                <div key={user._id} className='flex items-center justify-between w-full space-x-4'>
+                  <Link href={`/${user._id}`} passHref>
+                    <div className='flex items-center space-x-4'>
+                      <div className='w-10 h-10 rounded-full overflow-hidden'>
+                        <Avatar>
+                          <AvatarImage className='w-full h-full object-cover' src={user.avatar} />
+                          <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                      </div>
+                      <div className='flex flex-col'>
+                        <div className='text-base font-semibold text-black-900'>{user.name}</div>
+                        <div className='text-sm text-white-500'>{user.username}</div>
+                      </div>
                     </div>
-                  </div>
+                  </Link>
 
                   <div className=''>
-                    <div className='text-sm font-semibold '>theo dõi</div>
+                    {followedUsers.includes(user._id) ? (
+                      <div className='text-sm text-blue-500 font-semibold'>Đã theo dõi</div>
+                    ) : (
+                      <button className='text-sm text-blue-500 font-semibold' onClick={() => handleFollow(user._id)}>
+                        Theo dõi
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}
