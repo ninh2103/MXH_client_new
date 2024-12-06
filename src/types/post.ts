@@ -38,6 +38,14 @@ export const PostResponseSchema = z.object({
 export type PostType = z.infer<typeof PostTypeSchema>
 export type PostResponse = z.infer<typeof PostResponseSchema>
 
+const GetPosstListSchema = z.object({
+  _id: z.string(),
+  medias: z.array(MediaSchema),
+  content: z.string(),
+  created_at: z.string()
+})
+export type columnsType = z.infer<typeof GetPosstListSchema>
+
 const UserSchema = z.object({
   _id: z.string(),
   name: z.string(),

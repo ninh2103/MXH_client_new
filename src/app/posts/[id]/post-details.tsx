@@ -287,8 +287,7 @@ export default function PostDetail({ tweet_id }: PostDetailProps) {
 
                 <div className='flex'>
                   <div className='flex'>
-                    <p className='text-black font-bold text-sm'>{data.result.view} </p>
-                    <Eye className='text-black mr-2' />
+                    <p className='text-black font-normal text-sm'>{`${data.result.view} lượt xem`} </p>
                   </div>
 
                   <Bookmark

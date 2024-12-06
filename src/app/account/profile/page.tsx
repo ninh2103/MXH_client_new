@@ -12,13 +12,11 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import More from '@/components/more/More'
 import { useAccountQuery, useFollowerQuery, useFollowingQuery } from '@/queries/useAccount'
 import { useLogoutMutation } from '@/queries/useAuth'
-import useCheck from '@/queries/useCheck'
 import { useNewFeedMetQuery } from '@/queries/usePost'
 
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 
 export default function Dashboard() {
-  useCheck()
   const [activeSection, setActiveSection] = useState<string>('home')
   const [isDialogOpen, setDialogOpen] = useState(false)
   const [dialogType, setDialogType] = useState<'followers' | 'following' | null>(null)
@@ -104,7 +102,7 @@ export default function Dashboard() {
       </aside>
       <div className='flex flex-col flex-1 ml-[53px]'>
         <header className='sticky top-0 z-10 flex h-[53px] items-center gap-1 border-b bg-background px-4'>
-          <h1 className='text-xl font-semibold'>Playground</h1>
+          <h1 className='text-xl font-semibold'>WE</h1>
         </header>
         <div className='hidden md:flex flex-col items-start gap-8'>
           {activeItem && activeItem.component && <activeItem.component />}
@@ -126,8 +124,8 @@ export default function Dashboard() {
           <div className='flex-1'>
             {/* User Info */}
             <div className='text-left mb-4'>
-              <h2 className='text-2xl font-bold text-white-800'>{account?.username}</h2>
-              <p className='text-sm text-white-500'>{account?.name}</p>
+              <h2 className='text-2xl font-bold text-white-800'>{account?.name}</h2>
+              <p className='text-sm text-white-500'>{account?.username}</p>
               <div className='flex mt-2'>
                 <div className='mr-4'>
                   <span className='font-bold text-white-800'>{posts.length}</span>

@@ -10,17 +10,15 @@ import { Input } from '@/components/ui/input'
 import { Avatar } from '@radix-ui/react-avatar'
 import { AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import More from '@/components/more/More'
-import { useGetSearchUsersQuery, useGetUserMessageListQuery } from '@/queries/useAccount'
+import { useAccountQuery, useGetSearchUsersQuery, useGetUserMessageListQuery } from '@/queries/useAccount'
 import { usePathname, useRouter } from 'next/navigation'
 import { useMessageStore } from '@/lib/zustand'
-import useCheck from '@/queries/useCheck'
 import { useDebounce } from 'use-debounce'
 
 const limit = 10
 const page = 1
 
 export default function Dashboard() {
-  useCheck()
   const router = useRouter()
   const [isOpen, setIsOpen] = useState(true)
   const [text, setText] = useState('')
@@ -37,6 +35,9 @@ export default function Dashboard() {
 
   // Get users from the query data or set to an empty array if the search term is empty
   const usersFromApi = debouncedSearchTerm.trim() ? searchData?.results || [] : []
+
+  const accountQuery = useAccountQuery()
+  const data = accountQuery.data?.result
 
   const { activeSection, setActiveSection, selectedUserId, setSelectedUserId } = useMessageStore()
   const getUserMessageListQuery = useGetUserMessageListQuery(limit, page)
@@ -96,14 +97,14 @@ export default function Dashboard() {
       </aside>
       <div className='flex flex-col'>
         <header className='sticky top-0 z-10 flex h-[53px] items-center gap-1 border-b bg-background px-4'>
-          <h1 className='text-xl font-semibold'>Playground</h1>
+          <h1 className='text-xl font-semibold'>WE</h1>
         </header>
         <main className='grid flex-1 gap-4 overflow-auto p-4 md:grid-cols-2 lg:grid-cols-3'>
           <div className='relative hidden flex-col items-start gap-4 md:flex'>
             <div>
               <div className='flex items-center space-x-4'>
-                <Label htmlFor='terms' className='text-xl mr-20'>
-                  nguyenducninhh
+                <Label htmlFor='terms' className='text-sm mr-20'>
+                  {data?.name}
                 </Label>
 
                 <div className='relative flex-grow flex items-center'>

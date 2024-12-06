@@ -1,9 +1,12 @@
 import postApiRequest, {
+  deletePost,
   getMyPosts,
   getNewFeed,
   getNewFeedRandom,
   getTweetDetail,
-  getUserPosts
+  getUserPosts,
+  list,
+  listVideo
 } from '@/apiRequest/post'
 import { getAccessTokenFromLocalStorage } from '@/lib/utils'
 import { GetDetailResponse, GetMyPostsResponse, GetNewFeedsResponse, PostResponse, PostType } from '@/types/post'
@@ -50,5 +53,28 @@ export const useGetDetailQuery = (tweet_id: string) => {
   return useQuery<GetDetailResponse>({
     queryKey: ['detail'],
     queryFn: () => getTweetDetail(tweet_id)
+  })
+}
+export const useGetPostList = (limit: number, page: number) => {
+  return useQuery({
+    queryKey: ['post', limit, page],
+    queryFn: () => list(limit, page)
+  })
+}
+export const useDeletePostMutation = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: deletePost,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['post']
+      })
+    }
+  })
+}
+export const useGetPostVideoList = (limit: number, page: number) => {
+  return useQuery({
+    queryKey: ['post', limit, page],
+    queryFn: () => listVideo(limit, page)
   })
 }

@@ -85,3 +85,54 @@ export const getUserPosts = async (profile_user_id: string): Promise<GetMyPostsR
 
   return response.payload
 }
+// export const postApi = {
+//   list: (limit: number, page: number) =>
+//     http.get<GetNewFeedsResponse>(`/tweets/dashboard/list/?limit=${limit}&page=${page}`),
+//   deletePost: (id: string) => http.delete<GetNewFeedsResponse>(`/users/${id}`),
+//   listVideo: (limit: number, page: number) =>
+//     http.get<GetNewFeedsResponse>(`/tweets/video/newfeed/random/?limit=${limit}&page=${page}`)
+// }
+
+export const listVideo = async (limit: number, page: number) => {
+  const accessToken = getAccessTokenFromLocalStorage()
+
+  if (!accessToken) {
+    throw new Error('Access token not found')
+  }
+
+  const url = `/tweets/video/newfeed/random/?limit=${limit}&page=${page}`
+
+  const response = await http.get<GetNewFeedsResponse>(url, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`
+    }
+  })
+  return response.payload
+}
+
+export const list = async (limit: number, page: number) => {
+  const accessToken = getAccessTokenFromLocalStorage()
+
+  if (!accessToken) {
+    throw new Error('Access token not found')
+  }
+
+  const url = `/tweets/dashboard/list/?limit=${limit}&page=${page}`
+
+  const response = await http.get<GetNewFeedsResponse>(url, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`
+    }
+  })
+  return response.payload
+}
+export const deletePost = async (id: string) => {
+  const url = `/tweets/${id}`
+  const access_token = getAccessTokenFromLocalStorage()
+  const response = await http.delete<GetNewFeedsResponse>(url, {
+    headers: {
+      Authorization: `Bearer ${access_token}`
+    }
+  })
+  return response.payload
+}

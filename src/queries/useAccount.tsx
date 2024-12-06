@@ -1,13 +1,15 @@
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   accountApiRequest,
+  deleteAccount,
   getFollower,
   getFollowing,
   getMe,
   getProfile,
   getUserList,
   getUserMessageList,
-  getUserSearchList
+  getUserSearchList,
+  list
 } from '@/apiRequest/account'
 import { getAccessTokenFromLocalStorage } from '@/lib/utils'
 import {
@@ -77,5 +79,22 @@ export const useGetSearchUsersQuery = (searchTerm: string, limit: number) => {
   return useQuery<GetSearchUsersReponse>({
     queryKey: ['search'],
     queryFn: () => getUserSearchList(searchTerm, limit)
+  })
+}
+export const useGetAccountList = (limit: number, page: number) => {
+  return useQuery({
+    queryKey: ['accounts', limit, page],
+    queryFn: () => list(limit, page)
+  })
+}
+export const useDeleteAccountMutation = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: deleteAccount,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['accounts']
+      })
+    }
   })
 }

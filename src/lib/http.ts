@@ -60,24 +60,19 @@ const request = async <Response>(
   } else if (options?.body) {
     body = JSON.stringify(options.body)
   }
-  const baseHeaders: {
-    [key: string]: string
-  } =
+
+  const baseHeaders: { [key: string]: string } =
     body instanceof FormData
       ? {}
       : {
           'Content-Type': 'application/json'
         }
-  if (isClient) {
-    const accessToken = getAccessTokenFromLocalStorage()
-    if (accessToken) {
-      baseHeaders.Authorization = `Bearer ${accessToken}`
-    }
-  }
 
+  // Xử lý cookie cho client
   const baseUrl = options?.baseUrl === undefined ? envConfig.NEXT_PUBLIC_API_ENPOINT : options.baseUrl
   const fullUrl = `${baseUrl}/${normalizePath(url)}`
 
+  // Fetch với credentials: 'include' để gửi cookie
   const res = await fetch(fullUrl, {
     ...options,
     headers: {
@@ -85,7 +80,8 @@ const request = async <Response>(
       ...options?.headers
     } as any,
     body,
-    method
+    method,
+    credentials: 'include' // Quan trọng: gửi cookie trong các yêu cầu cross-origin
   })
 
   const payload: Response = await res.json()
@@ -94,7 +90,7 @@ const request = async <Response>(
     payload
   }
 
-  // Xử lý lỗi từ API (Http Interceptor)
+  // Xử lý lỗi từ API
   if (!res.ok) {
     if (res.status === ENTITY_ERROR_STATUS) {
       throw new EntityError(
@@ -120,31 +116,12 @@ const request = async <Response>(
           } finally {
             removeTokensFromLocalStorage()
             clientLogoutRequest = null
-            location.href = '/login' // Điều hướng người dùng tới trang đăng nhập sau khi logout
+            location.href = '/login' // Điều hướng người dùng đến trang đăng nhập sau khi logout
           }
         }
       }
     } else {
       throw new HttpError(data)
-    }
-  }
-
-  // Xử lý login và lưu token từ phía client (browser)
-  if (isClient) {
-    const normalizeUrl = normalizePath(url)
-    if (normalizeUrl === '/login') {
-      const { access_token, refresh_token } = (payload as LoginResType).result
-      setRefreshTokenToLocalStorage(refresh_token)
-      setAccessTokenToLocalStorage(access_token)
-    } else if (normalizeUrl === '/token') {
-      const { access_token, refresh_token } = payload as {
-        access_token: string
-        refresh_token: string
-      }
-      setAccessTokenToLocalStorage(access_token)
-      setRefreshTokenToLocalStorage(refresh_token)
-    } else if (normalizeUrl === '/logout') {
-      removeTokensFromLocalStorage()
     }
   }
 

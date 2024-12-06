@@ -6,6 +6,7 @@ export interface TokenPayload {
   user_id: string
   verify: number
   token_type: TokenTypeValue
+  role: number
   exp: number
   iat: number
 }

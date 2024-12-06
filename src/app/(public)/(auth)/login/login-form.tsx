@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button'
 import { useLoginMutation } from '@/queries/useAuth'
 import { useRouter } from 'next/navigation'
 import { toast } from '@/components/ui/use-toast'
-import useCheck from '@/queries/useCheck'
+import { decodeToken, getRefreshTokenFromLocalStorage } from '@/lib/utils'
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Email không hợp lệ' }),
@@ -22,8 +22,11 @@ const loginSchema = z.object({
 type LoginFormInputs = z.infer<typeof loginSchema>
 
 export default function LoginForm() {
-  useCheck()
   const router = useRouter()
+  const refreshToken = getRefreshTokenFromLocalStorage()
+  if (refreshToken) {
+    router.push('/')
+  }
   const loginMutation = useLoginMutation()
   const form = useForm<LoginFormInputs>({
     resolver: zodResolver(loginSchema),
@@ -40,22 +43,38 @@ export default function LoginForm() {
       console.log('data:', data)
       const { access_token, refresh_token } = data.result
 
+      // Lưu token vào localStorage
       localStorage.setItem('access_token', access_token)
       localStorage.setItem('refresh_token', refresh_token)
+
+      // Decode access_token để lấy role
+      const decodedToken: { role: number } = decodeToken(access_token)
+      const userRole = decodedToken.role
+
+      // Thông báo thành công
       toast({
         description: data.message
       })
 
-      router.push('/')
+      // Điều hướng theo role
+      if (userRole === 1) {
+        // Chuyển đến URL đầu tiên trong danh sách role 1
+        const managePaths = ['/manage/accounts', '/manage/posts']
+        router.push(managePaths[0])
+      } else if (userRole === 0) {
+        const userPaths = ['/', '/reels', '/account']
+        // Chuyển đến URL đầu tiên trong danh sách role 0
+        router.push(userPaths[0])
+      }
     } catch (error: any) {
-      console.log('lỗi', error)
+      console.log('Lỗi:', error)
     }
   }
 
   return (
     <Card className='mx-auto max-w-sm'>
       <CardHeader>
-        <CardTitle className='text-2xl'>Đăng nhập</CardTitle>
+        <CardTitle className='text-2xl'>Đăng nhập với - WE</CardTitle>
         <CardDescription>Nhập email và mật khẩu của bạn để đăng nhập vào hệ thống</CardDescription>
       </CardHeader>
       <CardContent>

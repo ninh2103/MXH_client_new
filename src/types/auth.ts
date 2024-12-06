@@ -4,6 +4,20 @@ export interface LoginBody {
   password: string
   email: string
 }
+export interface ForgotPasswordBody {
+  email: string
+}
+
+export interface ResetPassword {
+  password: string
+  comfirm_password: string
+  forgot_password_token: string
+}
+
+export const ForgotPasswordRes = z.object({
+  message: z.string()
+})
+export type ForgotPasswordResType = z.TypeOf<typeof ForgotPasswordRes>
 export const AuthRes = z.object({
   result: z.object({
     access_token: z.string(),
@@ -35,3 +49,8 @@ const verifySchema = z.object({
 })
 export type VerifyBodyType = z.TypeOf<typeof verifySchema>
 export type VerifyResType = z.TypeOf<typeof LogoutRes>
+
+const verifyPasswordSchema = z.object({
+  forgot_password_token: z.string()
+})
+export type VerifyPasswordBodyType = z.TypeOf<typeof verifyPasswordSchema>

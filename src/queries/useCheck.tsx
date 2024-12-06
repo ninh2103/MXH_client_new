@@ -1,26 +1,36 @@
 import { useEffect } from 'react'
-import { useRouter, usePathname } from 'next/navigation'
-import { getAccessTokenFromLocalStorage } from '@/lib/utils'
+import { useRouter } from 'next/navigation'
+import { decodeToken, getAccessTokenFromLocalStorage } from '@/lib/utils'
 
-const useCheck = () => {
+export default function useCheck(requiredRole: number) {
   const router = useRouter()
-  const pathname = usePathname()
 
   useEffect(() => {
-    const accessToken = getAccessTokenFromLocalStorage()
+    const token = getAccessTokenFromLocalStorage()
 
-    if (!accessToken) {
-      // Nếu không có token và không ở trang login, chuyển hướng tới trang login
-      if (pathname !== '/login') {
-        router.push('/login')
-      }
-    } else {
-      // Nếu đã có token và đang ở trang login, chuyển hướng tới trang chủ
-      if (pathname === '/login') {
-        router.push('/')
-      }
+    // Nếu không có token, chuyển hướng đến login
+    if (!token) {
+      router.push('/login')
+      return
     }
-  }, [pathname])
-}
 
-export default useCheck
+    try {
+      const decodedToken: { role: number } = decodeToken(token)
+
+      // Nếu vai trò không khớp, điều hướng đến trang phù hợp
+      if (decodedToken.role !== requiredRole) {
+        if (decodedToken.role === 1) {
+          // Admin không được truy cập các trang của user
+          router.push('/manage/accounts')
+        } else if (decodedToken.role === 0) {
+          // User không được truy cập các trang của admin
+          router.push('/')
+        }
+      }
+    } catch (error) {
+      console.error('Lỗi khi decode token:', error)
+      // Nếu token không hợp lệ, chuyển hướng đến login
+      router.push('/login')
+    }
+  }, [router, requiredRole])
+}

@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { Newspaper } from 'lucide-react'
 
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import menuItems from '@/app/account/menuItems'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -15,6 +15,7 @@ import { useFollowMutation, useUnfollowMutation } from '@/queries/useFollow'
 import { useNewFeedMetQuery, useUserPostMetQuery } from '@/queries/usePost'
 
 export default function Dashboard() {
+  const router = useRouter()
   const pathname = usePathname()
   const user_id = pathname.split('/').pop()
   const [activeSection, setActiveSection] = useState<string>('home')
@@ -62,6 +63,10 @@ export default function Dashboard() {
     setActiveSection(title)
   }
 
+  const handleRedirect = (id: string) => {
+    router.push(`/account/message/${id}`)
+  }
+
   return (
     <div className='flex h-screen'>
       <aside className='fixed inset-y-0 left-0 z-20 flex flex-col border-r bg-background'>
@@ -105,7 +110,7 @@ export default function Dashboard() {
       </aside>
       <div className='flex flex-col flex-1 ml-[53px]'>
         <header className='sticky top-0 z-10 flex h-[53px] items-center gap-1 border-b bg-background px-4'>
-          <h1 className='text-xl font-semibold'>Playground</h1>
+          <h1 className='text-xl font-semibold'>WE</h1>
         </header>
         <div className='flex items-start p-6 space-x-4'>
           {/* Avatar Section */}
@@ -151,7 +156,10 @@ export default function Dashboard() {
               >
                 {isFollowed ? 'Đang theo dõi' : 'Theo dõi'}
               </Button>
-              <Button className='px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 border border-gray-300 rounded-lg'>
+              <Button
+                className='px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 border border-gray-300 rounded-lg'
+                onClick={() => handleRedirect(account?._id as string)}
+              >
                 Nhắn tin
               </Button>
             </div>

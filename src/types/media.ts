@@ -10,3 +10,14 @@ export const UploadImageRes = z.object({
 })
 
 export type UploadImageResType = z.infer<typeof UploadImageRes>
+
+const UploadVideoResult = z.object({
+  url: z.string(),
+  type: z.number()
+})
+
+export const UploadVideoRes = z.object({
+  result: UploadVideoResult
+})
+
+export type UploadVideoResType = z.infer<typeof UploadVideoRes>

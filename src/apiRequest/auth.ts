@@ -1,13 +1,17 @@
 import http from '@/lib/http'
 import { getAccessTokenFromLocalStorage } from '@/lib/utils'
 import {
+  ForgotPasswordBody,
+  ForgotPasswordResType,
   LoginBody,
   LoginResType,
   LogoutBody,
   LogoutResType,
   RegisterBodyType,
+  ResetPassword,
   ResponseResType,
   VerifyBodyType,
+  VerifyPasswordBodyType,
   VerifyResType
 } from '@/types/auth'
 
@@ -34,5 +38,20 @@ export const register = async (body: RegisterBodyType) => {
 }
 export const verifyEmail = async (body: VerifyBodyType) => {
   const response = await http.post<VerifyResType>('users/verify-email', body)
+  return response.payload
+}
+
+export const verifyEmailPassword = async (body: VerifyPasswordBodyType) => {
+  const response = await http.post<VerifyResType>('/users/verify-forgot-password-token', body)
+  return response.payload
+}
+
+export const forgotPassword = async (body: ForgotPasswordBody) => {
+  const response = await http.post<ForgotPasswordResType>('/users/forgot-password', body)
+  return response.payload
+}
+
+export const resetPassword = async (body: ResetPassword) => {
+  const response = await http.post<ForgotPasswordResType>('/users/reset-password', body)
   return response.payload
 }

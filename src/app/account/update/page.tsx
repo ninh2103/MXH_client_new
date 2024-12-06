@@ -8,10 +8,8 @@ import { cn } from '@/lib/utils'
 import Link from 'next/link'
 import More from '@/components/more/More'
 import UpdateProfileForm from '@/components/update-profile'
-import useCheck from '@/queries/useCheck'
 
 export default function Dashboard() {
-  useCheck()
   const [activeSection, setActiveSection] = useState<string>('home')
 
   const handleNavClick = (title: string) => {
@@ -61,7 +59,7 @@ export default function Dashboard() {
       </aside>
       <div className='flex flex-col flex-1 ml-[53px]'>
         <header className='sticky top-0 z-10 flex h-[53px] items-center gap-1 border-b bg-background px-4'>
-          <h1 className='text-xl font-semibold'>Playground</h1>
+          <h1 className='text-xl font-semibold'>WE</h1>
         </header>
         <UpdateProfileForm />
       </div>

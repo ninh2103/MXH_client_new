@@ -9,11 +9,10 @@ import { cn } from '@/lib/utils'
 import menuItems from '@/app/account/menuItems'
 import { usePathname, useRouter } from 'next/navigation'
 import More from '@/components/more/More'
-import { useGetProfileQuery, useGetUserMessageListQuery } from '@/queries/useAccount'
+import { useAccountQuery, useGetProfileQuery, useGetUserMessageListQuery } from '@/queries/useAccount'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { useGetReceiverQuery } from '@/queries/useConversation'
 import useStore from '@/lib/zustand'
-import useCheck from '@/queries/useCheck'
 import socket from '@/lib/socket'
 
 const limit = 10
@@ -24,7 +23,8 @@ const profile =
     : null
 
 export default function Dashboard() {
-  useCheck()
+  const accountQuery = useAccountQuery()
+  const result = accountQuery.data?.result
 
   const pathname = usePathname()
   const user_id = pathname.split('/').pop() || ''
@@ -165,7 +165,7 @@ export default function Dashboard() {
 
         <div className='flex flex-col'>
           <header className='sticky top-0 z-10 flex h-[53px] items-center gap-1 border-b bg-background px-4'>
-            <h1 className='text-xl font-semibold'>Playground</h1>
+            <h1 className='text-xl font-semibold'>WE</h1>
           </header>
 
           <main className='grid flex-1 gap-4 overflow-auto p-4 md:grid-cols-2 lg:grid-cols-3'>
@@ -173,8 +173,8 @@ export default function Dashboard() {
               <div className='relative hidden flex-col items-start gap-4 md:flex'>
                 <div>
                   <div className='flex items-center space-x-4'>
-                    <Label htmlFor='terms' className='text-xl mr-20'>
-                      nguyenducninhh
+                    <Label htmlFor='terms' className='text-sm mr-20'>
+                      {result?.name}
                     </Label>
                     <div className='relative flex-grow flex items-center'>
                       <p className='w-full rounded-lg bg-background pl-10 pr-3 py-2'>

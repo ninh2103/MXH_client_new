@@ -4,10 +4,10 @@ import { Input } from '@/components/ui/input'
 import { ArrowLeft, ArrowRight, Settings2, UserRoundPlus } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Textarea } from '@/components/ui/textarea'
-import { useUploadMediaMutation } from '@/queries/useMedia'
+import { useUploadMediaMutation, useUploadVideoMutation } from '@/queries/useMedia'
 import { useAddPostMutation } from '@/queries/usePost'
 import { getAccessTokenFromLocalStorage } from '@/lib/utils'
-import { useAccountQuery, useGetProfileQuery, useGetSearchUsersQuery } from '@/queries/useAccount'
+import { useAccountQuery, useGetSearchUsersQuery } from '@/queries/useAccount'
 import { useDebounce } from 'use-debounce'
 
 const limit = 10
@@ -21,6 +21,7 @@ export default function Create() {
   const [isOpen, setIsOpen] = useState(true)
   const [isOpenMention, setIsOpenMention] = useState(true)
   const [buttonText, setButtonText] = useState('Tiếp tục')
+  const [selectedVideos, setSelectedVideos] = useState<File[]>([])
   const [postContent, setPostContent] = useState('')
   const [mentions, setMentions] = useState<string[]>([]) // Mentioned user IDs
   const [text, setText] = useState('')
@@ -43,77 +44,110 @@ export default function Create() {
     handleReset()
   }
 
-  // const handleClose = () => {
-  //   setIsOpen(false)
-  //   handleReset()
-  // }
-  // const handleCloseMention = () => {
-  //   setIsOpenMention(false)
-  //   handleReset()
-  // }
-
   const handleReset = () => {
     setText('') // Clear the search text
   }
 
   const uploadMediaMutation = useUploadMediaMutation()
+  const uploadVideoMutation = useUploadVideoMutation()
   const addPostMutation = useAddPostMutation()
   const account = useAccountQuery()
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
       const files = Array.from(event.target.files)
-      setSelectedImages(files)
+      const images = files.filter((file) => file.type.startsWith('image/'))
+      const videos = files.filter((file) => file.type.startsWith('video/'))
+
+      // Chỉ cho phép tải lên một loại tệp: ảnh hoặc video
+      if (selectedImages.length > 0 && videos.length > 0) {
+        alert('Bạn chỉ có thể chọn ảnh hoặc video, không thể chọn cả hai.')
+        return
+      }
+
+      if (selectedVideos.length > 0 && images.length > 0) {
+        alert('Bạn chỉ có thể chọn video hoặc ảnh, không thể chọn cả hai.')
+        return
+      }
+
+      if (images.length > 0) {
+        setSelectedImages(images)
+        setSelectedVideos([]) // Xóa video nếu người dùng chọn ảnh
+      } else if (videos.length > 0) {
+        setSelectedVideos(videos)
+        setSelectedImages([]) // Xóa ảnh nếu người dùng chọn video
+      }
+
       setCurrentIndex(0)
-      setHasSelectedImages(true)
+      setHasSelectedImages(images.length > 0 || videos.length > 0)
     }
   }
 
   const handlePost = async () => {
     try {
-      const formData = new FormData()
-      selectedImages.forEach((file) => {
-        formData.append('image', file)
-      })
+      let medias = [] as { url: string; type: number }[]
 
-      const { result } = await uploadMediaMutation.mutateAsync(formData)
+      // Handle Image Upload
+      if (selectedImages.length > 0) {
+        const formDataImages = new FormData()
+        selectedImages.forEach((file) => {
+          formDataImages.append('image', file)
+        })
 
-      if (Array.isArray(result)) {
-        const imageMedias = result.map((media) => ({
+        const imageResponse = await uploadMediaMutation.mutateAsync(formDataImages)
+
+        // Update medias array for image (with type: 0)
+        medias = imageResponse.result.map((media: { url: string; type: number }) => ({
           url: media.url,
-          type: media.type
+          type: 0
         }))
+      }
 
-        const accessToken = getAccessTokenFromLocalStorage()
+      // Handle Video Upload
+      if (selectedVideos.length > 0) {
+        const formDataVideos = new FormData()
+        selectedVideos.forEach((file) => {
+          formDataVideos.append('video', file)
+        })
 
-        const postData = {
-          body: {
-            _id: '',
-            user_id: '', // Add actual user ID
-            type: 0,
-            audience: 0,
-            content: postContent,
-            parent_id: null,
-            hashtags: [], // Add hashtags if needed
-            mentions, // The mentions array with user IDs
-            medias: imageMedias,
-            guest_view: 0,
-            user_view: 0,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          },
-          access_token: accessToken as string
-        }
+        const videoResponse = await uploadVideoMutation.mutateAsync(formDataVideos)
 
-        if (!addPostMutation.isPending) {
-          await addPostMutation.mutateAsync(postData)
-          setIsOpen(false)
-        }
-      } else {
-        console.error('Invalid data format received from uploadMediaMutation:', result)
+        // Update medias array for video (with type: 1)
+        medias = [
+          {
+            url: videoResponse.result.url,
+            type: 1
+          }
+        ]
+      }
+
+      const accessToken = getAccessTokenFromLocalStorage()
+
+      const postData = {
+        body: {
+          _id: '',
+          user_id: '', // Add actual user ID
+          type: 0, // Set the post type (0 for regular posts)
+          audience: 0,
+          content: postContent,
+          parent_id: null,
+          hashtags: [],
+          mentions,
+          medias,
+          guest_view: 0,
+          user_view: 0,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        },
+        access_token: accessToken as string
+      }
+
+      if (!addPostMutation.isPending) {
+        await addPostMutation.mutateAsync(postData)
+        setIsOpen(false)
       }
     } catch (error) {
-      console.error('Error uploading media or creating post:', error)
+      console.error('Lỗi khi tải lên phương tiện hoặc tạo bài viết:', error)
     }
   }
 
@@ -142,7 +176,17 @@ export default function Create() {
         <div className={`grid gap-4 py-4 items-center h-full ${showTextInput ? 'justify-start' : 'justify-center'}`}>
           <div className='relative flex items-center justify-center w-full'>
             <div className='flex w-full'>
-              {selectedImages.length > 0 ? (
+              {selectedVideos.length > 0 ? (
+                // Hiển thị video nếu có video được chọn
+                <video
+                  controls
+                  src={URL.createObjectURL(selectedVideos[currentIndex])}
+                  className={`object-cover w-[300px] h-[300px] transition-all duration-300 ${
+                    showTextInput ? 'ml-0' : 'mx-auto'
+                  }`}
+                />
+              ) : selectedImages.length > 0 ? (
+                // Hiển thị ảnh nếu có ảnh được chọn
                 <div className='relative'>
                   <img
                     src={URL.createObjectURL(selectedImages[currentIndex])}
@@ -165,6 +209,7 @@ export default function Create() {
                   )}
                 </div>
               ) : (
+                // Hiển thị text nếu chưa chọn gì
                 <span className='text-4xl font-semibold'>Ảnh/Video</span>
               )}
             </div>
@@ -250,16 +295,16 @@ export default function Create() {
             ) : (
               <>
                 <p onClick={() => inputRef.current?.click()} className='cursor-pointer text-white-500'>
-                  Chọn ảnh từ thiết bị của bạn
+                  Chọn ảnh hoặc video từ thiết bị của bạn
                 </p>
                 <Input
-                  id='picture'
+                  id='media'
                   type='file'
                   ref={inputRef}
                   multiple
                   className='hidden'
                   onChange={handleFileChange}
-                  accept='image/png, image/jpeg, image/webp'
+                  accept='image/png, image/jpeg, image/webp, video/mp4, video/webm'
                 />
               </>
             )}

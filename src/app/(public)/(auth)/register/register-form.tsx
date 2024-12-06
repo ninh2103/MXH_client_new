@@ -10,10 +10,15 @@ import { useRegisterMutation } from '@/queries/useAuth'
 import { RegisterBodyType } from '@/types/auth'
 import { toast } from '@/components/ui/use-toast'
 import { useRouter } from 'next/navigation'
+import { getRefreshTokenFromLocalStorage } from '@/lib/utils'
 
 export default function RegisterForm() {
   const registerMutation = useRegisterMutation()
   const router = useRouter()
+  const refreshToken = getRefreshTokenFromLocalStorage()
+  if (refreshToken) {
+    router.push('/')
+  }
   const form = useForm({
     defaultValues: {
       email: '',
@@ -46,7 +51,7 @@ export default function RegisterForm() {
   return (
     <Card className='mx-auto max-w-sm'>
       <CardHeader>
-        <CardTitle className='text-2xl'>Đăng Kí</CardTitle>
+        <CardTitle className='text-2xl'>Đăng Kí với - WE</CardTitle>
         <CardDescription>Điền thông tin của bạn vào form để đăng kí tài khoản.</CardDescription>
       </CardHeader>
       <CardContent>
@@ -135,7 +140,7 @@ export default function RegisterForm() {
                 Đăng Kí
               </Button>
               <div className='flex'>
-                <Link href={`#`} className='w-1/3 text-center'>
+                <Link href={`/login`} className='w-1/3 text-center'>
                   Đăng nhập
                 </Link>
                 <Link href={''} className='w-2/3 text-center'>

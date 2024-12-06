@@ -44,6 +44,23 @@ export interface GetMeResponse {
   result: AccountType
 }
 
+export type AccountsType = {
+  _id: string
+  name: string
+  email: string
+  data_of_birth: string
+  create_at: string
+  update_at: string
+  tweet_circle: unknown[]
+  verify: number
+  bio: string
+  location: string
+  website: string
+  username: string
+  avatar: string
+  cover_photo: string
+}
+
 export const UpdateMeReqBody = z.object({
   name: z.string().optional(),
   data_of_birth: z.string().optional(),
@@ -84,6 +101,24 @@ export const UserListResponseSchema = z.object({
   message: z.string(),
   result: z.array(GetUserListSchema)
 })
+const GetUsersListSchema = z.object({
+  _id: z.string(),
+  name: z.string(),
+  username: z.string(),
+  avatar: z.string().optional() // Vì avatar có thể là chuỗi rỗng
+})
+export type columnsType = z.infer<typeof GetUsersListSchema>
+
+export const UsersListResponseSchema = z.object({
+  currentPage: z.number(),
+  totalPages: z.number(),
+  totalUsers: z.number(),
+  result: z.object({
+    users: z.array(GetUsersListSchema) // Mảng người dùng
+  })
+})
+
+export type GetUserListResponse = z.infer<typeof UsersListResponseSchema>
 
 export type GetListReponse = z.infer<typeof UserListResponseSchema>
 

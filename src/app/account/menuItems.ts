@@ -1,7 +1,6 @@
 import React from 'react'
-import { Home, Search as SearchIcon, Heart, MessageCircle, PlusCircle, SquareUser } from 'lucide-react'
+import { Home, Search as SearchIcon, Heart, MessageCircle, PlusCircle, SquareUser, Film } from 'lucide-react'
 import search from '@/components/search'
-import notication from '@/components/notication'
 import create from '@/components/create'
 
 export type MenuItem = {
@@ -25,10 +24,9 @@ const menuItems: MenuItem[] = [
     component: search
   },
   {
-    title: 'Thông báo',
-    Icon: Heart,
-    href: '',
-    component: notication
+    title: 'Thướt Phim',
+    Icon: Film,
+    href: '/reels'
   },
   {
     title: 'Tin nhắn',

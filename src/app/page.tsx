@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { usePathname, useRouter } from 'next/navigation'
 import menuItems from '@/app/account/menuItems'
-import { cn, getAccessTokenFromLocalStorage } from '@/lib/utils'
+import { cn, getAccessTokenFromLocalStorage, getRefreshTokenFromLocalStorage } from '@/lib/utils'
 import Link from 'next/link'
 import More from '@/components/more/More'
 import { Label } from '@radix-ui/react-label'
@@ -17,6 +17,11 @@ const limit = 5
 const page = 1
 
 function HomePage() {
+  const router = useRouter()
+  const refreshToken = getRefreshTokenFromLocalStorage()
+  if (!refreshToken) {
+    router.push('/login')
+  }
   const [activeSection, setActiveSection] = useState<string>('home')
   const [followedUsers, setFollowedUsers] = useState<string[]>([])
   const getUserListQuery = useGetUserListQuery(limit, page)
@@ -95,7 +100,7 @@ function HomePage() {
       </aside>
       <div className='flex flex-col'>
         <header className='sticky top-0 z-10 flex h-[53px] items-center gap-1 border-b bg-background px-4'>
-          <h1 className='text-xl font-semibold'>Playground</h1>
+          <h1 className='text-xl font-semibold'>WE</h1>
         </header>
         <main className='grid flex-1 gap-4 overflow-auto p-4 md:grid-cols-2 lg:grid-cols-3'>
           <div className='relative hidden flex-col items-start gap-8 md:flex'>

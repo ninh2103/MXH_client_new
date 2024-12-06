@@ -5,6 +5,7 @@ import {
   GetListReponse,
   GetMeResponse,
   GetSearchUsersReponse,
+  GetUserListResponse,
   UpdateMeReqBodyType
 } from '@/types/account'
 
@@ -123,5 +124,39 @@ export const getUserSearchList = async (searchTerm: string, limit: number = 10) 
     }
   })
 
+  return response.payload
+}
+
+// export const accountApi = {
+//   list: (limit: number, page: number) =>
+//     http.get<GetUserListResponse>(`/users/dashboard/account/list/?limit=${limit}&page=${page}`),
+//   deleteEmployee: (id: number) => http.delete<GetListReponse>(`/users/${id}`)
+// }
+export const list = async (limit: number, page: number): Promise<GetUserListResponse> => {
+  const accessToken = getAccessTokenFromLocalStorage()
+
+  if (!accessToken) {
+    throw new Error('Access token not found')
+  }
+
+  const url = `/users/dashboard/account/list/?limit=${limit}&page=${page}`
+
+  const response = await http.get<GetUserListResponse>(url, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`
+    }
+  })
+
+  return response.payload
+}
+
+export const deleteAccount = async (id: string) => {
+  const url = `/users/${id}`
+  const access_token = getAccessTokenFromLocalStorage()
+  const response = await http.delete<GetListReponse>(url, {
+    headers: {
+      Authorization: `Bearer ${access_token}`
+    }
+  })
   return response.payload
 }

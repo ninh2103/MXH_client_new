@@ -1,4 +1,12 @@
-import { login, logout, register, verifyEmail } from '@/apiRequest/auth'
+import {
+  forgotPassword,
+  login,
+  logout,
+  register,
+  resetPassword,
+  verifyEmail,
+  verifyEmailPassword
+} from '@/apiRequest/auth'
 import { useMutation } from '@tanstack/react-query'
 
 export const useLoginMutation = () => {
@@ -19,5 +27,22 @@ export const useLogoutMutation = () => {
 export const useVerifyMutation = () => {
   return useMutation({
     mutationFn: verifyEmail
+  })
+}
+
+export const useVerifyPasswordMutation = () => {
+  return useMutation({
+    mutationFn: verifyEmailPassword
+  })
+}
+export const useForgotPasswordMutation = () => {
+  return useMutation({
+    mutationFn: forgotPassword
+  })
+}
+
+export const useResetMutation = () => {
+  return useMutation({
+    mutationFn: resetPassword
   })
 }
